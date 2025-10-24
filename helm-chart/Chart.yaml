@@ -1,0 +1,12 @@
+name: my-helm-chart
+version: 0.1.0
+description: A Helm chart for Kubernetes application
+apiVersion: v2
+maintainers:
+  - name: Your Name
+    email: your.email@example.com
+keywords:
+  - helm
+  - kubernetes
+  - chart
+```

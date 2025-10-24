@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitoring-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+      - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_namespace]
+            action: keep
+            regex: default|wordpress|mysql|nginx-openresty|monitoring
+
+  alert.rules: |
+    groups:
+      - name: wordpress-alerts
+        rules:
+          - alert: HighCpuUsage
+            expr: sum(rate(container_cpu_usage_seconds_total{namespace="default"}[5m])) by (pod) > 0.8
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "High CPU usage detected on {{ $labels.pod }}"
+              description: "CPU usage is above 80% for more than 5 minutes."
+
+      - name: nginx-alerts
+        rules:
+          - alert: High5xxErrors
+            expr: sum(rate(nginx_http_requests_total{status=~"5.."}[5m])) by (pod) > 0
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High 5xx error rate detected on {{ $labels.pod }}"
+              description: "5xx error rate is above threshold for more than 5 minutes."
+
+grafana:
+  enabled: true
+  adminPassword: "admin"
+  datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus-server
+      access: proxy
+      isDefault: true
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
+    interval: 30s
+    scrapeTimeout: 10s
+    metricsPath: /metrics
+    relabelings:
+      - sourceLabels: [__meta_kubernetes_service_name]
+        action: keep
+        regex: wordpress|nginx-openresty|mysql
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

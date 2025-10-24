@@ -1,0 +1,14 @@
+name: mysql
+version: 0.1.0
+description: A Helm chart for Kubernetes to deploy MySQL
+type: application
+keywords:
+  - mysql
+  - database
+  - helm
+maintainers:
+  - name: Your Name
+    email: your.email@example.com
+sources:
+  - https://github.com/your-repo/mysql-chart
+dependencies: []

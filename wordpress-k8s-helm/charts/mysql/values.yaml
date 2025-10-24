@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  labels:
+    app: mysql
+data:
+  MYSQL_ROOT_PASSWORD: "rootpassword"
+  MYSQL_DATABASE: "wordpress"
+  MYSQL_USER: "wordpressuser"
+  MYSQL_PASSWORD: "wordpresspassword"
+
+replicaCount: 1
+
+image:
+  repository: mysql
+  tag: "5.7"
+  pullPolicy: IfNotPresent
+
+service:
+  enabled: true
+  annotations: {}
+  type: ClusterIP
+  port: 3306
+  targetPort: 3306
+  name: mysql
+
+persistence:
+  enabled: true
+  storageClass: "nfs"
+  accessModes:
+    - ReadWriteMany
+  size: 8Gi
+
+resources: {}
+  
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

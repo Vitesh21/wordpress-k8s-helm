@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Docker images
+        run: |
+          docker build -t myrepo/wordpress:latest ./docker/wordpress
+          docker build -t myrepo/mysql:latest ./docker/mysql
+          docker build -t myrepo/nginx-openresty:latest ./docker/nginx-openresty
+
+      - name: Push Docker images
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push myrepo/wordpress:latest
+          docker push myrepo/mysql:latest
+          docker push myrepo/nginx-openresty:latest
+
+      - name: Helm lint
+        run: |
+          helm lint ./charts/wordpress
+          helm lint ./charts/mysql
+          helm lint ./charts/nginx-openresty
+          helm lint ./charts/monitoring
+
+      - name: Deploy to Kubernetes
+        run: |
+          helm upgrade --install my-release ./charts/wordpress --namespace wordpress --create-namespace
+          helm upgrade --install my-release ./charts/mysql --namespace mysql --create-namespace
+          helm upgrade --install my-release ./charts/nginx-openresty --namespace nginx --create-namespace
+          helm upgrade --install my-release ./charts/monitoring --namespace monitoring --create-namespace
+
+      - name: Clean up
+        run: |
+          helm delete my-release --namespace wordpress
+          helm delete my-release --namespace mysql
+          helm delete my-release --namespace nginx
+          helm delete my-release --namespace monitoring

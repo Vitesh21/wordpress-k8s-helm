@@ -1,0 +1,14 @@
+name: nginx-openresty
+version: 0.1.0
+description: A Helm chart for deploying Nginx OpenResty with Lua support
+type: application
+keywords:
+  - nginx
+  - openresty
+  - lua
+maintainers:
+  - name: Your Name
+    email: your.email@example.com
+sources:
+  - https://github.com/your-repo/nginx-openresty
+dependencies: []

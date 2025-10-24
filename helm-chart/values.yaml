@@ -1,0 +1,29 @@
+# Default configuration values for the Helm chart
+
+replicaCount: 1
+
+image:
+  repository: my-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  enabled: true
+  name: default-service
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+  annotations: {}
+
+ingress:
+  enabled: false
+  name: ""
+  path: /
+  pathType: ImplementationSpecific
+  hosts:
+    - host: chart-example.local
+      paths:
+        - /
+  tls: []  # Treated as an array of objects
+
+resources: {}

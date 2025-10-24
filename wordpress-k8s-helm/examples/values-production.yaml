@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-config
+data:
+  wordpressTitle: "My Production WordPress Site"
+  wordpressUsername: "admin"
+  wordpressPassword: "securepassword"
+  wordpressEmail: "admin@example.com"
+  wordpressDatabase: "wordpress"
+  wordpressHost: "mysql"
+  wordpressPort: "3306"
+  nginxHost: "nginx"
+  nginxPort: "80"
+
+persistence:
+  enabled: true
+  storageClass: "nfs"
+  accessModes:
+    - ReadWriteMany
+  size: 10Gi
+
+service:
+  type: LoadBalancer
+  port: 80
+
+ingress:
+  enabled: true
+  hosts:
+    - host: my-production-site.com
+      paths:
+        - /
+  tls:
+    - secretName: my-production-site-tls
+      hosts:
+        - my-production-site.com
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+
+nodeSelector:
+  app: wordpress
+
+tolerations:
+  - key: "example.com/special"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - wordpress
+        topologyKey: "kubernetes.io/hostname"

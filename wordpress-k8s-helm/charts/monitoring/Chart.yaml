@@ -1,0 +1,19 @@
+name: monitoring
+version: 0.1.0
+description: A Helm chart for monitoring WordPress application using Prometheus and Grafana
+keywords:
+  - monitoring
+  - prometheus
+  - grafana
+maintainers:
+  - name: Your Name
+    email: your.email@example.com
+sources:
+  - https://github.com/your-repo/wordpress-k8s-helm
+dependencies:
+  - name: prometheus
+    version: 14.0.0
+    repository: https://charts.helm.sh/stable
+  - name: grafana
+    version: 6.16.0
+    repository: https://charts.helm.sh/stable
